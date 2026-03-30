@@ -19,7 +19,7 @@ import gui.font;
 public class SkolemPage
 {
     private TextInput _skolemInput;
-    private Label _skolemizedLabel;
+    private Space _skolemizedLabelSpace;
     private void delegate() _onRefresh;
 
     this(void delegate() onRefresh)
@@ -30,7 +30,7 @@ public class SkolemPage
     public Space build()
     {
         _skolemInput = textInput(.layout!("fill"), "Formula");
-        _skolemizedLabel = label(.layout!"center", "");
+        _skolemizedLabelSpace = hspace(.layout!"center");
 
         return vspace(
             .layout!"center", vframe(
@@ -38,7 +38,7 @@ public class SkolemPage
                 _skolemInput,
                 _buildSpecialCharButtons(),
                 _buildActionButtons(),
-                _skolemizedLabel
+                _skolemizedLabelSpace
             )
         );
     }
@@ -48,16 +48,16 @@ public class SkolemPage
         return button(.layout!"center", "Skolemize", delegate() @trusted {
             string input = getFormulaInput();
             input = input.replace("∀", "A").replace("∃", "E")
-                                           .replace("∧", "&")
-                                           .replace("∨", "|")
-                                           .replace("→", ">")
-                                           .replace("¬", "!")
-                                           .replace("↔", "=");
+                                        .replace("∧", "&")
+                                        .replace("∨", "|")
+                                        .replace("→", ">")
+                                        .replace("¬", "!")
+                                        .replace("↔", "=");
             dstring skolemized = toFormulaString(skolemizeFormula(input));
             writeln(skolemized);
             skolemized = skolemized.replace("and", "∧")
-                                   .replace("or", "∨")
-                                   .replace("not", "¬");
+                                .replace("or", "∨")
+                                .replace("not", "¬");
 
             while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d)) {
                 skolemized = skolemized.replace("¬ ¬", ""); // double negation.
@@ -70,15 +70,70 @@ public class SkolemPage
             {
                 skolemized = skolemized.replace(c, subscript[i]);
             }
-            _skolemizedLabel.text = to!string(skolemized);
+            
+            foreach (i, c; digits)
+            {
+                skolemized = skolemized.replace(c, subscript[i]);
+            }
+
+
+            auto coloredOutput = _buildColoredLabel(skolemized);
+            _skolemizedLabelSpace.children ~= coloredOutput.children;
+            _skolemizedLabelSpace.updateSize();
+            
             // debug print
-            writeln("Skolemized formula: ", _skolemizedLabel.text);
+            writeln("Skolemized formula: ", skolemized);
             // ∀x(P(x) → ∃y(Q(x,y) ∧ ¬R(y))) - correct
             // ∀x∃y∀z∃w(P(s(x)) → (P(y)∧P(w) → ¬P(s(z))))) - correct
             // ∀x(P(x)↔R(x)) - correct
             // ∀x((P(x) → R(x)) ∧ (R(x) → P(x))) - correct
             // ∀x(P(x) ↔ Q(x) ↔ R(x) ↔ ¬S(x) ↔ ¬P(x)) - idk yet
         });
+    }
+
+    private Space _buildColoredLabel(dstring skolemized)
+    {
+        auto segments = hspace();
+        
+        foreach (dchar c; skolemized) {
+            Color uColor;
+            
+            // Simple character-based coloring
+            switch (c) {
+                case '∧':
+                case '∨':
+                    uColor = colorPalette.conjdisj;
+                    break;
+                case '∀':
+                case '∃':
+                    uColor = colorPalette.quantifiers;
+                    break;
+                case '→':
+                case '↔':
+                    uColor = colorPalette.arrows;
+                    break;
+                default:
+                    // color for predicates, functions, variables, and other characters
+                    if (c >= 'a' && c <= 'z')
+                        uColor = colorPalette.variables;
+                    else if (c >= 'A' && c <= 'Z')
+                        uColor = colorPalette.functions;
+                    else
+                        uColor = colorPalette.text;
+            }
+            
+            // Create a label with the custom color
+            auto labelTheme = Theme(
+                rule!Label(
+                    textColor = uColor,
+                    typeface = mathFont,
+                ),
+            );
+            
+            segments.children ~= labelTheme.label(format("%c", c));
+        }
+        
+        return segments;
     }
 
     private Space _buildSpecialCharButtons()
