@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/skolemizer-gui
+skolemizer-gui.so
+skolemizer-gui.dylib
+skolemizer-gui.dll
+skolemizer-gui.a
+skolemizer-gui.lib
+skolemizer-gui-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
