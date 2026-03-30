@@ -78,7 +78,7 @@ public class SkolemPage
 
 
             auto coloredOutput = _buildColoredLabel(skolemized);
-            _skolemizedLabelSpace.children ~= coloredOutput.children;
+            _skolemizedLabelSpace.children = coloredOutput.children;
             _skolemizedLabelSpace.updateSize();
             
             // debug print
@@ -132,7 +132,7 @@ public class SkolemPage
             
             segments.children ~= labelTheme.label(format("%c", c));
         }
-        
+
         return segments;
     }
 
