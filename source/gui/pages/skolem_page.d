@@ -58,9 +58,10 @@ public class SkolemPage
             input = input.replace("∀", "A").replace("∃", "E")
                                            .replace("∧", "&")
                                            .replace("∨", "|")
-                                           .replace("→", "->")
+                                           .replace("→", ">")
                                            .replace("¬", "!");
             dstring skolemized = toFormulaString(skolemizeFormula(input));
+            writeln(skolemized);
             skolemized = skolemized.replace("and", "∧")
                                    .replace("or", "∨")
                                    .replace("not", "¬");
@@ -74,7 +75,7 @@ public class SkolemPage
             _skolemizedLabel.text = to!string(skolemized);
             writeln("Skolemized formula: ", _skolemizedLabel.text);
             // ∀x(P(x) → ∃y(Q(x,y) ∧ ¬R(y))) - correct
-            // ∀x∃y∀z∃w(P(s(x)) → (P(y)∧P(w) → ¬P(s(z))))) - wrong answer
+            // ∀x∃y∀z∃w(P(s(x)) → (P(y)∧P(w) → ¬P(s(z))))) - correct
             // 
         });
     }
