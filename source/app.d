@@ -8,18 +8,19 @@ import gui.gui;
 
 void main()
 {
+    // Enable UTF-8 output on Windows
+    version(Windows) {
+        import core.sys.windows.windows : SetConsoleCP, SetConsoleOutputCP;
+        SetConsoleCP(65001); // UTF-8 input
+        SetConsoleOutputCP(65001); // UTF-8 output
+    }
+
 	SetTraceLogLevel(7);
 	SetConfigFlags(ConfigFlags.FLAG_WINDOW_RESIZABLE);
 	SetConfigFlags(ConfigFlags.FLAG_WINDOW_ALWAYS_RUN);
 	InitWindow(800, 800, "Skolemizer");
 	SetTargetFPS(30);
 	scope (exit) CloseWindow();
-
-
-	string fomula = "AxEy(P(x) & Q(y))";
-	auto skolemized = skolemizeFormula(fomula);
-	writeln("Original formula: ", fomula);
-	writeln("Skolemized formula: ", toFormulaString(skolemized));
 
 	auto gui = new Gui();
 

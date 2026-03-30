@@ -13,7 +13,7 @@ public static class Themes
         return Theme(
             rule!GridRow(margin = 100),
             rule!Button(
-                backgroundColor = Colors.DARKGRAY,
+                backgroundColor = Colors.GRAY,
                 textColor = Colors.WHITE,
                 margin = 10,
                 padding = 5,
@@ -43,7 +43,7 @@ public static class Themes
             rule!Button(
                 margin = 10,
                 padding = 10,
-                backgroundColor = Colors.DARKGRAY,
+                backgroundColor = Colors.GRAY,
                 textColor = Colors.WHITE,
                 typeface = mathFont,
 
@@ -68,7 +68,7 @@ public static class Themes
         return Theme(
             rule!GridRow(margin = 100),
             rule!Button(
-                backgroundColor = Colors.DARKGRAY,
+                backgroundColor = Colors.GRAY,
                 textColor = Colors.WHITE,
                 margin = 10,
                 padding = 5,
