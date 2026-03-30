@@ -5,6 +5,7 @@ import raylib;
 import fluid;
 
 import gui.gui;
+import gui.color;
 
 void main()
 {
@@ -28,7 +29,7 @@ void main()
 	{
 		BeginDrawing();
 
-		ClearBackground(Colors.DARKGRAY);
+		ClearBackground(colorPalette.background);
 
 		gui.draw();
 

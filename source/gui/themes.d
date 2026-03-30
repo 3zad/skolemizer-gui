@@ -3,6 +3,7 @@ module gui.themes;
 import fluid;
 import raylib;
 import fluid.theme;
+import gui.color;
 
 import gui.font : mathFont;
 
@@ -13,24 +14,24 @@ public static class Themes
         return Theme(
             rule!GridRow(margin = 100),
             rule!Button(
-                backgroundColor = Colors.GRAY,
-                textColor = Colors.WHITE,
+                backgroundColor = colorPalette.background,
+                textColor = colorPalette.text,
                 margin = 10,
                 padding = 5,
                 typeface = mathFont,
             ),
             rule!Frame(
-                backgroundColor = Colors.DARKGRAY,
+                backgroundColor = colorPalette.background,
                 typeface = mathFont,
             ),
             rule!Label(
                 padding = 15,
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
                 typeface = mathFont,
             ),
             rule!TextInput(
-                textColor = Colors.WHITE,
-                backgroundColor = Colors.DARKGRAY,
+                textColor = colorPalette.text,
+                backgroundColor = colorPalette.background,
                 typeface = mathFont,
             ),
         );
@@ -43,21 +44,21 @@ public static class Themes
             rule!Button(
                 margin = 10,
                 padding = 10,
-                backgroundColor = Colors.GRAY,
-                textColor = Colors.WHITE,
+                backgroundColor = colorPalette.background,
+                textColor = colorPalette.text,
                 typeface = mathFont,
 
             ),
             rule!Label(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
                 typeface = mathFont,
             ),
             rule!IntInput(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
                 typeface = mathFont,
             ),
             rule!CodeInput(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
                 typeface = mathFont,
             ),
         );
@@ -68,18 +69,18 @@ public static class Themes
         return Theme(
             rule!GridRow(margin = 100),
             rule!Button(
-                backgroundColor = Colors.GRAY,
-                textColor = Colors.WHITE,
+                backgroundColor = colorPalette.background,
+                textColor = colorPalette.text,
                 margin = 10,
                 padding = 5,
                 typeface = mathFont,
             ),
             rule!Frame(
-                backgroundColor = Colors.DARKGRAY,
+                backgroundColor = colorPalette.background,
                 typeface = mathFont,
             ),
             rule!Label(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
                 typeface = mathFont,
             )
         );

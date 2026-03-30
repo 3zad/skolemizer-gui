@@ -1,17 +1,20 @@
 module gui.pages.skolem_page;
 
 import fluid;
+import fluid.theme;
 import raylib;
 import skolemizer;
-import std.process : browse;
 import std.format;
 import std.stdio;
 import std.conv;
 import std.array;
 import std.string;
 import clipboard;
+import std.algorithm.searching;
 
 import gui.themes;
+import gui.color;
+import gui.font;
 
 public class SkolemPage
 {
@@ -34,20 +37,9 @@ public class SkolemPage
                 Themes.getSkolemTheme(),
                 _skolemInput,
                 _buildSpecialCharButtons(),
-                _buildHelpSection(),
                 _buildActionButtons(),
                 _skolemizedLabel
             )
-        );
-    }
-
-    private Space _buildHelpSection()
-    {
-        return hspace(.layout!"center",
-            label("Example label"),
-            button(.layout!"center", "Visit help page", delegate() @trusted {
-                browse("https://google.com/");
-            })
         );
     }
 
@@ -59,46 +51,70 @@ public class SkolemPage
                                            .replace("∧", "&")
                                            .replace("∨", "|")
                                            .replace("→", ">")
-                                           .replace("¬", "!");
+                                           .replace("¬", "!")
+                                           .replace("↔", "=");
             dstring skolemized = toFormulaString(skolemizeFormula(input));
             writeln(skolemized);
             skolemized = skolemized.replace("and", "∧")
                                    .replace("or", "∨")
                                    .replace("not", "¬");
+
+            while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d)) {
+                skolemized = skolemized.replace("¬ ¬", ""); // double negation.
+                skolemized = skolemized.replace("¬¬", ""); // double negation.
+            }
             dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
-            dstring digits = "0123456789"d;  // Note the 'd' suffix for dstring
+            dstring digits = "0123456789"d;
 
             foreach (i, c; digits)
             {
                 skolemized = skolemized.replace(c, subscript[i]);
             }
             _skolemizedLabel.text = to!string(skolemized);
+            // debug print
             writeln("Skolemized formula: ", _skolemizedLabel.text);
             // ∀x(P(x) → ∃y(Q(x,y) ∧ ¬R(y))) - correct
             // ∀x∃y∀z∃w(P(s(x)) → (P(y)∧P(w) → ¬P(s(z))))) - correct
-            // 
+            // ∀x(P(x)↔R(x)) - correct
+            // ∀x((P(x) → R(x)) ∧ (R(x) → P(x))) - correct
+            // ∀x(P(x) ↔ Q(x) ↔ R(x) ↔ ¬S(x) ↔ ¬P(x)) - idk yet
         });
     }
 
     private Space _buildSpecialCharButtons()
     {
+        auto customColor(Color hex) {
+            return Theme(
+                rule!Button(
+                    backgroundColor = colorPalette.background,
+                    textColor = hex,
+                    margin = 10,
+                    padding = 5,
+                    typeface = mathFont,
+                ),
+            );
+        }
+
         return hspace(
-            button("∀", delegate() @trusted {
+            button(customColor(colorPalette.quantifiers), "∀", delegate() @trusted {
                 pushToClipboard("∀");
             }),
-            button("∃", delegate() @trusted {
+            button(customColor(colorPalette.quantifiers), "∃", delegate() @trusted {
                 pushToClipboard("∃");
             }),
-            button("∧", delegate() @trusted {
+            button(customColor(colorPalette.conjdisj), "∧", delegate() @trusted {
                 pushToClipboard("∧");
             }),
-            button("∨", delegate() @trusted {
+            button(customColor(colorPalette.conjdisj), "∨", delegate() @trusted {
                 pushToClipboard("∨");
             }),
-            button("→", delegate() @trusted {
+            button(customColor(colorPalette.arrows), "→", delegate() @trusted {
                 pushToClipboard("→");
             }),
-            button("¬", delegate() @trusted {
+            button(customColor(colorPalette.arrows), "↔", delegate() @trusted {
+                pushToClipboard("↔");
+            }),
+            button(customColor(colorPalette.text), "¬", delegate() @trusted {
                 pushToClipboard("¬");
             })
         );
