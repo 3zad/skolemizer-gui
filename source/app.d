@@ -11,7 +11,7 @@ void main()
 	SetTraceLogLevel(7);
 	SetConfigFlags(ConfigFlags.FLAG_WINDOW_RESIZABLE);
 	SetConfigFlags(ConfigFlags.FLAG_WINDOW_ALWAYS_RUN);
-	InitWindow(400, 400, "Skolemizer");
+	InitWindow(800, 800, "Skolemizer");
 	SetTargetFPS(30);
 	scope (exit) CloseWindow();
 

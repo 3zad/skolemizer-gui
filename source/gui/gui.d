@@ -3,108 +3,57 @@ module gui.gui;
 import fluid;
 import raylib;
 
-import fluid.theme;
-
-import gui.skolem_view;
+import gui.pages.skolem_page;
+import gui.pages.welcome_page;
+import gui.components.header;
+import gui.themes;
 
 public class Gui
 {
-    private Space root, current_page, skolem_page;
+    private Space root;
+    private Page _currentPage;
+    private SkolemPage _skolemPage;
+    private WelcomePage _welcomePage;
+    private Header _header;
 
-    private SkolemView skolemView;
+    enum Page
+    {
+        WELCOME,
+        SKOLEM,
+    }
 
     this()
     {
-        this.skolemView = SkolemView();
-
-        auto intro_theme = Theme(
-            rule!GridRow(margin = 100),
-            rule!Button(
-                // typeface = minecraftFont,
-                backgroundColor = Colors.DARKGRAY,
-                textColor = Colors.WHITE,
-                margin = 10,
-                padding = 5,
-            ),
-
-            rule!Frame(
-                backgroundColor = Colors.DARKGRAY,
-            ),
-            rule!Label(
-                // typeface = minecraftFont,
-                textColor = Colors.WHITE,
-            )
-        );
-
-        auto welcome_page = vspace(
-            
-                .layout!"center", vframe(
-                intro_theme,
-                label(.layout!"center", "Skolemizer"),
-                label(.layout!"center", "Build v" ~ "1.0.0"),
-                button(.layout!"center", "Continue", delegate() @trusted {
-                    root = mainFrame(current_page);
-                }))
-        );
-
-    
-        skolem_page = skolemView.skolemView(&refreshSkolemView);
+        _skolemPage = new SkolemPage(&_showSkolemPage);
+        _welcomePage = new WelcomePage(&_showSkolemPage);
+        _header = new Header(&_showSkolemPage, &_onButton2Click);
         
-        current_page = skolem_page;
-        root = welcome_page;
-
+        root = _welcomePage.build();
+        _currentPage = Page.WELCOME;
     }
 
-    private Theme headerTheme()
+    private void _showSkolemPage()
     {
-        return Theme(
-            rule!GridRow(margin = 100),
-            rule!Button(
-                margin = 10,
-                padding = 10,
-                backgroundColor = Colors.DARKGRAY,
-                textColor = Colors.WHITE,
-                // // typeface = minecraftFont
-            ),
-            rule!Label(
-                textColor = Colors.WHITE,
-                // // typeface = minecraftFont
-            ),
-            rule!IntInput(
-                textColor = Colors.WHITE,
-                // typeface = minecraftFont
-            ),
-            rule!CodeInput(
-                textColor = Colors.WHITE,
-                // typeface = minecraftFont
-            ),
-        );
+        _currentPage = Page.SKOLEM;
+        root = _buildMainFrame(_skolemPage.build());
     }
 
-    void refreshSkolemView()
+    private void _onButton2Click()
     {
-        root = mainFrame(skolemView.skolemView(&refreshSkolemView));
+        // nothing
     }
 
-    private Space mainFrame(Space _current_page)
+    private Space _buildMainFrame(Space contentArea)
     {
-        return vspace(.layout!("fill"),headerTheme(),
-            hspace(
-                button("Skolem", delegate() @trusted {
-                    root = mainFrame(skolemView.skolemView(&refreshSkolemView));
-                }),
-                button("Button2", delegate() @trusted {
-                    // nothing
-                }),
-            ),
+        return vspace(.layout!("fill"), Themes.getHeaderTheme(),
+            _header.build(),
             hseparator(),
             hspace(.layout!("fill"),
                 vseparator(),
                 vspace(.layout!(5, "fill"),
-                    _current_page
+                    contentArea
                 ),
             )
-            
         );
     }
 
