@@ -18,7 +18,7 @@ import gui.font;
 
 public class SkolemPage
 {
-    private TextInput _skolemInput;
+    private CodeInput _skolemInput;
     private Space _skolemizedLabelSpace;
     private void delegate() _onRefresh;
 
@@ -29,7 +29,7 @@ public class SkolemPage
 
     public Space build()
     {
-        _skolemInput = textInput(.layout!("fill"), "Formula");
+        _skolemInput = codeInput(.layout!("fill"));
         _skolemizedLabelSpace = hspace(.layout!"center");
 
         return vspace(
@@ -46,34 +46,45 @@ public class SkolemPage
     private Button _buildActionButtons()
     {
         return button(.layout!"center", "Skolemize", delegate() @trusted {
-            string input = getFormulaInput();
-            input = input.replace("∀", "A").replace("∃", "E")
-                                        .replace("∧", "&")
-                                        .replace("∨", "|")
-                                        .replace("→", ">")
-                                        .replace("¬", "!")
-                                        .replace("↔", "=");
-            dstring skolemized = toFormulaString(skolemizeFormula(input));
-            writeln(skolemized);
-            skolemized = skolemized.replace("and", "∧")
-                                .replace("or", "∨")
-                                .replace("not", "¬");
 
-            while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d)) {
-                skolemized = skolemized.replace("¬ ¬", ""); // double negation.
-                skolemized = skolemized.replace("¬¬", ""); // double negation.
-            }
-            dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
-            dstring digits = "0123456789"d;
+            dstring skolemized;
+            try {
+                string input = getFormulaInput();
+                input = input.replace("∀", "A").replace("∃", "E")
+                                            .replace("∧", "&")
+                                            .replace("∨", "|")
+                                            .replace("→", ">")
+                                            .replace("¬", "!")
+                                            .replace("↔", "=");
 
-            foreach (i, c; digits)
-            {
-                skolemized = skolemized.replace(c, subscript[i]);
-            }
-            
-            foreach (i, c; digits)
-            {
-                skolemized = skolemized.replace(c, subscript[i]);
+                skolemized = toFormulaString(skolemizeFormula(input));
+
+                writeln(skolemized);
+                skolemized = skolemized.replace("and", "∧")
+                                    .replace("or", "∨")
+                                    .replace("not", "¬");
+
+                while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d)) {
+                    skolemized = skolemized.replace("¬ ¬", ""); // double negation.
+                    skolemized = skolemized.replace("¬¬", ""); // double negation.
+                }
+                dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
+                dstring digits = "0123456789"d;
+
+                foreach (i, c; digits)
+                {
+                    skolemized = skolemized.replace(c, subscript[i]);
+                }
+
+                foreach (i, c; digits)
+                {
+                    skolemized = skolemized.replace(c, subscript[i]);
+                }
+
+            } catch (Error e) {
+                skolemized = "Error: "d ~ to!dstring(e.msg);
+            } catch (Exception e) {
+                skolemized = "Exception: "d ~ to!dstring(e.msg);
             }
 
 
@@ -152,25 +163,28 @@ public class SkolemPage
 
         return hspace(
             button(customColor(colorPalette.quantifiers), "∀", delegate() @trusted {
-                pushToClipboard("∀");
+                // append "∀" to the current input
+                _skolemInput.value = _skolemInput.value ~ "∀";
+
             }),
             button(customColor(colorPalette.quantifiers), "∃", delegate() @trusted {
-                pushToClipboard("∃");
+                // append "∃" to the current input
+                _skolemInput.value = _skolemInput.value ~ "∃";
             }),
             button(customColor(colorPalette.conjdisj), "∧", delegate() @trusted {
-                pushToClipboard("∧");
+                _skolemInput.value = _skolemInput.value ~ "∧";
             }),
             button(customColor(colorPalette.conjdisj), "∨", delegate() @trusted {
-                pushToClipboard("∨");
+                _skolemInput.value = _skolemInput.value ~ "∨";
             }),
             button(customColor(colorPalette.arrows), "→", delegate() @trusted {
-                pushToClipboard("→");
+                _skolemInput.value = _skolemInput.value ~ "→";
             }),
             button(customColor(colorPalette.arrows), "↔", delegate() @trusted {
-                pushToClipboard("↔");
+                _skolemInput.value = _skolemInput.value ~ "↔";
             }),
             button(customColor(colorPalette.text), "¬", delegate() @trusted {
-                pushToClipboard("¬");
+                _skolemInput.value = _skolemInput.value ~ "¬";
             })
         );
     }

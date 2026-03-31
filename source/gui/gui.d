@@ -49,7 +49,6 @@ public class Gui
             _header.build(),
             hseparator(),
             hspace(.layout!("fill"),
-                vseparator(),
                 vspace(.layout!(5, "fill"),
                     contentArea
                 ),
