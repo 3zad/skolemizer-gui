@@ -82,7 +82,10 @@ public static class Themes
             rule!Label(
                 textColor = colorPalette.text,
                 typeface = mathFont,
-            )
+            ),
+            rule!ImageView(
+                margin = 20,
+            ),
         );
     }
 }
