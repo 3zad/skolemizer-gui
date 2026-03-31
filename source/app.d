@@ -21,6 +21,7 @@ void main()
 	SetConfigFlags(ConfigFlags.FLAG_WINDOW_ALWAYS_RUN);
 	InitWindow(800, 800, "Skolemizer");
 	SetTargetFPS(30);
+	SetWindowIcon(LoadImage("./source/resources/images/skolemizerlogo.png"));
 	scope (exit) CloseWindow();
 
 	auto gui = new Gui();

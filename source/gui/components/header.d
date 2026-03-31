@@ -4,6 +4,8 @@ import fluid;
 import raylib;
 import fluid.theme;
 
+import gui.color;
+
 public class Header
 {
     private Theme _headerTheme;
@@ -24,17 +26,18 @@ public class Header
             rule!Button(
                 margin = 10,
                 padding = 10,
-                backgroundColor = Colors.DARKGRAY,
-                textColor = Colors.WHITE,
+                backgroundColor = colorPalette.accent,
+                textColor = colorPalette.text,
             ),
             rule!Label(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
             ),
             rule!IntInput(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
             ),
             rule!CodeInput(
-                textColor = Colors.WHITE,
+                textColor = colorPalette.text,
+                backgroundColor = colorPalette.background,
             ),
         );
     }

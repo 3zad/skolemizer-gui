@@ -141,7 +141,7 @@ public class SkolemPage
         auto customColor(Color hex) {
             return Theme(
                 rule!Button(
-                    backgroundColor = colorPalette.background,
+                    backgroundColor = colorPalette.accent,
                     textColor = hex,
                     margin = 10,
                     padding = 5,
