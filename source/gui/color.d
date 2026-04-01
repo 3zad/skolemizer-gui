@@ -4,7 +4,7 @@ import raylib;
 import fluid;
 import fluid.theme;
 
-__gshared static immutable ColorPalette colorPalette = pinkPalette();
+__gshared static immutable ColorPalette colorPalette = highContrastPalette();
 
 static struct ColorPalette
 {
@@ -62,8 +62,68 @@ static ColorPalette pinkPalette() pure
     );
 }
 
+static ColorPalette bluePalette() pure
+{
+    return ColorPalette(
+        color("#0D1B2A"), // background
+        color("#1B263B"), // accent
+        color("#FFFFFF"), // text
+        color("#415A77"), // arrows
+        color("#778DA9"), // conjdisj
+        color("#E0E1DD"), // functions
+        color("#F0F3BD"), // variables
+        color("#A9BCD0"), // quantifiers
+        color("#415A77"), // paren1
+        color("#778DA9"), // paren2
+        color("#E0E1DD"), // paren3
+        color("#F0F3BD"), // paren4
+        color("#A9BCD0"), // paren5
+    );
+}
+
+static ColorPalette rainbowPalette() pure
+{
+    return ColorPalette(
+        color("#282828"), // background
+        color("#458588"), // accent
+        color("#ebdbb2"), // text
+        color("#d3869b"), // arrows
+        color("#b16286"), // conjdisj
+        color("#8ec07c"), // functions
+        color("#fabd2f"), // variables
+        color("#fe8019"), // quantifiers
+        color("#458588"), // paren1
+        color("#b16286"), // paren2
+        color("#8ec07c"), // paren3
+        color("#fabd2f"), // paren4
+        color("#fe8019"), // paren5
+    );
+}
+
+static ColorPalette highContrastPalette() pure
+{
+    // bright colors on black background.
+    return ColorPalette(
+        color("#000000"), // background
+        color("#FF0000"), // accent
+        color("#FFFFFF"), // text
+        color("#00FF00"), // arrows
+        color("#0000FF"), // conjdisj
+        color("#FFFF00"), // functions
+        color("#FF00FF"), // variables
+        color("#00FFFF"), // quantifiers
+        color("#FF0000"), // paren1
+        color("#00FF00"), // paren2
+        color("#0000FF"), // paren3
+        color("#FFFF00"), // paren4
+        color("#FF00FF"), // paren5
+    );
+}
+
 Color getParenColor(int depth)
 {
+    while (depth < 0)
+        depth += 5;
     final switch (depth % 5) {
         case 0: return colorPalette.paren1;
         case 1: return colorPalette.paren2;
