@@ -30,7 +30,7 @@ public class SkolemPage
     public Space build()
     {
         _skolemInput = codeInput(.layout!("fill"));
-        _skolemizedLabelSpace = hspace(.layout!"center");
+        _skolemizedLabelSpace = vspace(.layout!"center");
 
         return vspace(
             .layout!"center", vframe(
@@ -99,52 +99,71 @@ public class SkolemPage
             // ∀x(P(x)↔R(x)) - correct
             // ∀x((P(x) → R(x)) ∧ (R(x) → P(x))) - correct
             // ∀x(P(x) ↔ Q(x) ↔ R(x) ↔ ¬S(x) ↔ ¬P(x)) - idk yet
+            // ∀xP(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(x))))))))))))))))))) - correct
         });
     }
 
     private Space _buildColoredLabel(dstring skolemized)
     {
-        auto segments = hspace();
-        
+        auto container = vspace();
+        auto currentLine = hspace();
+        container.children ~= currentLine;
+
+        int parenDepth = 0;
+        int lineCharCount = 0;
+        const int maxCharsPerLine = GetScreenWidth()/16; // rough estimate based on font size
+
         foreach (dchar c; skolemized) {
             Color uColor;
-            
-            // Simple character-based coloring
+            bool isSymbol = false;
+
             switch (c) {
-                case '∧':
-                case '∨':
+                case '∧': case '∨':
+                    isSymbol = true;
                     uColor = colorPalette.conjdisj;
                     break;
-                case '∀':
-                case '∃':
+                case '∀': case '∃':
+                    isSymbol = true;
                     uColor = colorPalette.quantifiers;
                     break;
-                case '→':
-                case '↔':
+                case '→': case '↔':
+                    isSymbol = true;
                     uColor = colorPalette.arrows;
                     break;
                 default:
-                    // color for predicates, functions, variables, and other characters
                     if (c >= 'a' && c <= 'z')
                         uColor = colorPalette.variables;
                     else if (c >= 'A' && c <= 'Z')
                         uColor = colorPalette.functions;
-                    else
+                    else if (c == '(') {
+                        uColor = getParenColor(parenDepth);
+                        parenDepth++;
+                    } else if (c == ')') {
+                        uColor = getParenColor(parenDepth - 1);
+                        parenDepth--;
+                    } else
                         uColor = colorPalette.text;
             }
-            
-            // Create a label with the custom color
+
             auto labelTheme = Theme(
                 rule!Label(
                     textColor = uColor,
                     typeface = mathFont,
                 ),
             );
-            
-            segments.children ~= labelTheme.label(format("%c", c));
+
+            currentLine.children ~= labelTheme.label(format("%c", c));
+            lineCharCount++;
+
+            if (lineCharCount >= maxCharsPerLine - lineCharCount * 0.2 && isSymbol) {
+                // newline
+                currentLine = hspace();
+                container.children ~= currentLine;
+                lineCharCount = 0;
+            }
         }
 
-        return segments;
+        return container;
     }
 
     private Space _buildSpecialCharButtons()
