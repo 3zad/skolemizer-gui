@@ -10,6 +10,6 @@
 		"fluid": "0.8.3",
 		"optional": "1.3.1",
 		"raylib-d": "5.5.3",
-		"skolemizer": "1.0.2"
+		"skolemizer": "1.0.3"
 	}
 }

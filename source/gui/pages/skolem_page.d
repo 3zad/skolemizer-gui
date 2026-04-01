@@ -50,19 +50,10 @@ public class SkolemPage
             dstring skolemized;
             try {
                 string input = getFormulaInput();
-                input = input.replace("∀", "A").replace("∃", "E")
-                                            .replace("∧", "&")
-                                            .replace("∨", "|")
-                                            .replace("→", ">")
-                                            .replace("¬", "!")
-                                            .replace("↔", "=");
-
                 skolemized = toFormulaString(skolemizeFormula(input));
 
                 writeln(skolemized);
-                skolemized = skolemized.replace("and", "∧")
-                                    .replace("or", "∨")
-                                    .replace("not", "¬");
+
 
                 while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d)) {
                     skolemized = skolemized.replace("¬ ¬", ""); // double negation.
@@ -94,12 +85,13 @@ public class SkolemPage
             
             // debug print
             writeln("Skolemized formula: ", skolemized);
-            // ∀x(P(x) → ∃y(Q(x,y) ∧ ¬R(y))) - correct
-            // ∀x∃y∀z∃w(P(s(x)) → (P(y)∧P(w) → ¬P(s(z))))) - correct
-            // ∀x(P(x)↔R(x)) - correct
-            // ∀x((P(x) → R(x)) ∧ (R(x) → P(x))) - correct
-            // ∀x(P(x) ↔ Q(x) ↔ R(x) ↔ ¬S(x) ↔ ¬P(x)) - idk yet
+            // ∀x(P(x) ⟶ ∃y(Q(x,y) ∧ ¬R(y))) - correct
+            // ∀x∃y∀z∃w(P(s(x)) ⟶ (P(y)∧P(w) ⟶ ¬P(s(z))))) - correct
+            // ∀x(P(x)⟷R(x)) - correct
+            // ∀x((P(x) ⟶ R(x)) ∧ (R(x) ⟶ P(x))) - correct
+            // ∀x(P(x) ⟷ Q(x) ⟷ R(x) ⟷ ¬S(x) ⟷ ¬P(x)) - idk yet
             // ∀xP(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(x))))))))))))))))))) - correct
+            // ∀x∃y∀z∃w∀v∃u(P(x,y) ∧ Q(z,w) ⟶ R(v,u) ∧ S(x,z,v))
         });
     }
 
@@ -118,7 +110,10 @@ public class SkolemPage
             bool isSymbol = false;
 
             switch (c) {
-                case '∧': case '∨':
+                case '∧': 
+                case '∨':
+                case '&':
+                case '|':
                     isSymbol = true;
                     uColor = colorPalette.conjdisj;
                     break;
@@ -126,7 +121,7 @@ public class SkolemPage
                     isSymbol = true;
                     uColor = colorPalette.quantifiers;
                     break;
-                case '→': case '↔':
+                case '⟶': case '⟷':
                     isSymbol = true;
                     uColor = colorPalette.arrows;
                     break;
@@ -196,11 +191,11 @@ public class SkolemPage
             button(customColor(colorPalette.conjdisj), "∨", delegate() @trusted {
                 _skolemInput.value = _skolemInput.value ~ "∨";
             }),
-            button(customColor(colorPalette.arrows), "→", delegate() @trusted {
-                _skolemInput.value = _skolemInput.value ~ "→";
+            button(customColor(colorPalette.arrows), "⟶", delegate() @trusted {
+                _skolemInput.value = _skolemInput.value ~ "⟶";
             }),
-            button(customColor(colorPalette.arrows), "↔", delegate() @trusted {
-                _skolemInput.value = _skolemInput.value ~ "↔";
+            button(customColor(colorPalette.arrows), "⟷", delegate() @trusted {
+                _skolemInput.value = _skolemInput.value ~ "⟷";
             }),
             button(customColor(colorPalette.text), "¬", delegate() @trusted {
                 _skolemInput.value = _skolemInput.value ~ "¬";
