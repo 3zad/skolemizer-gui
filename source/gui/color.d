@@ -4,7 +4,7 @@ import raylib;
 import fluid;
 import fluid.theme;
 
-__gshared static immutable ColorPalette colorPalette = highContrastPalette();
+__gshared static immutable ColorPalette colorPalette = defaultPalette();
 
 static struct ColorPalette
 {

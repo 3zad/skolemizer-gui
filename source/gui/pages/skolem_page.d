@@ -33,66 +33,112 @@ public class SkolemPage
         _skolemizedLabelSpace = vspace(.layout!"center");
 
         return vspace(
-            .layout!"center", vframe(
-                Themes.getSkolemTheme(),
-                _skolemInput,
-                _buildSpecialCharButtons(),
-                _buildActionButtons(),
-                _skolemizedLabelSpace
-            )
+            
+                .layout!"center", vframe(
+                    Themes.getSkolemTheme(),
+                    _skolemInput,
+                    _buildSpecialCharButtons(),
+                    _buildActionButtons(),
+                    _skolemizedLabelSpace
+                )
         );
     }
 
-    private Button _buildActionButtons()
+    private Space _buildActionButtons()
     {
-        return button(.layout!"center", "Skolemize", delegate() @trusted {
+        return hspace(.layout!"center", 
+            button(.layout!"center", "Skolemize", delegate() @trusted {
 
-            dstring skolemized;
-            try {
-                string input = getFormulaInput();
-                skolemized = toFormulaString(skolemizeFormula(input));
-
-                writeln(skolemized);
-
-
-                while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d)) {
-                    skolemized = skolemized.replace("¬ ¬", ""); // double negation.
-                    skolemized = skolemized.replace("¬¬", ""); // double negation.
-                }
-                dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
-                dstring digits = "0123456789"d;
-
-                foreach (i, c; digits)
+                dstring skolemized;
+                try
                 {
-                    skolemized = skolemized.replace(c, subscript[i]);
-                }
+                    string input = getFormulaInput();
+                    skolemized = toFormulaString(skolemizeFormula(input));
 
-                foreach (i, c; digits)
+                    writeln(skolemized);
+
+                    while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d))
+                    {
+                        skolemized = skolemized.replace("¬ ¬", ""); // double negation.
+                        skolemized = skolemized.replace("¬¬", ""); // double negation.
+                    }
+                    dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
+                    dstring digits = "0123456789"d;
+
+                    foreach (i, c; digits)
+                    {
+                        skolemized = skolemized.replace(c, subscript[i]);
+                    }
+
+                    foreach (i, c; digits)
+                    {
+                        skolemized = skolemized.replace(c, subscript[i]);
+                    }
+
+                }
+                catch (Error e)
                 {
-                    skolemized = skolemized.replace(c, subscript[i]);
+                    skolemized = "Error: "d ~ to!dstring(e.msg);
+                }
+                catch (Exception e)
+                {
+                    skolemized = "Exception: "d ~ to!dstring(e.msg);
                 }
 
-            } catch (Error e) {
-                skolemized = "Error: "d ~ to!dstring(e.msg);
-            } catch (Exception e) {
-                skolemized = "Exception: "d ~ to!dstring(e.msg);
-            }
+                auto coloredOutput = _buildColoredLabel(skolemized);
+                _skolemizedLabelSpace.children = coloredOutput.children;
+                _skolemizedLabelSpace.updateSize();
 
+                // debug print
+                writeln("Skolemized formula: ", skolemized);
+                // ∀x(P(x) ⟶ ∃y(Q(x,y) ∧ ¬R(y))) - correct
+                // ∀x∃y∀z∃w(P(s(x)) ⟶ (P(y)∧P(w) ⟶ ¬P(s(z))))) - correct
+                // ∀x(P(x)⟷R(x)) - correct
+                // ∀x((P(x) ⟶ R(x)) ∧ (R(x) ⟶ P(x))) - correct
+                // ∀x(P(x) ⟷ Q(x) ⟷ R(x) ⟷ ¬S(x) ⟷ ¬P(x)) - idk yet
+                // ∀xP(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(x))))))))))))))))))) - correct
+                // ∀x∃y∀z∃w∀v∃u(P(x,y) ∧ Q(z,w) ⟶ R(v,u) ∧ S(x,z,v))
+            }),
+            button("CNF", delegate() @trusted {
+                dstring cnf;
+                try
+                {
+                    string input = getFormulaInput();
+                    cnf = toFormulaString(distribute(skolemizeFormula(input)));
 
-            auto coloredOutput = _buildColoredLabel(skolemized);
-            _skolemizedLabelSpace.children = coloredOutput.children;
-            _skolemizedLabelSpace.updateSize();
-            
-            // debug print
-            writeln("Skolemized formula: ", skolemized);
-            // ∀x(P(x) ⟶ ∃y(Q(x,y) ∧ ¬R(y))) - correct
-            // ∀x∃y∀z∃w(P(s(x)) ⟶ (P(y)∧P(w) ⟶ ¬P(s(z))))) - correct
-            // ∀x(P(x)⟷R(x)) - correct
-            // ∀x((P(x) ⟶ R(x)) ∧ (R(x) ⟶ P(x))) - correct
-            // ∀x(P(x) ⟷ Q(x) ⟷ R(x) ⟷ ¬S(x) ⟷ ¬P(x)) - idk yet
-            // ∀xP(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(x))))))))))))))))))) - correct
-            // ∀x∃y∀z∃w∀v∃u(P(x,y) ∧ Q(z,w) ⟶ R(v,u) ∧ S(x,z,v))
-        });
+                    writeln(cnf);
+
+                    while (cnf.canFind("¬ ¬"d) || cnf.canFind("¬¬"d))
+                    {
+                        cnf = cnf.replace("¬ ¬", ""); // double negation.
+                        cnf = cnf.replace("¬¬", ""); // double negation.
+                    }
+                    dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
+                    dstring digits = "0123456789"d;
+
+                    foreach (i, c; digits)
+                    {
+                        cnf = cnf.replace(c, subscript[i]);
+                    }
+
+                }
+                catch (Error e)
+                {
+                    cnf = "Error: "d ~ to!dstring(e.msg);
+                }
+                catch (Exception e)
+                {
+                    cnf = "Exception: "d ~ to!dstring(e.msg);
+                }
+
+                auto coloredOutput = _buildColoredLabel(cnf);
+                _skolemizedLabelSpace.children = coloredOutput.children;
+                _skolemizedLabelSpace.updateSize();
+
+                // debug print
+                writeln("CNF formula: ", cnf);
+             })
+            );
     }
 
     private Space _buildColoredLabel(dstring skolemized)
@@ -103,54 +149,63 @@ public class SkolemPage
 
         int parenDepth = 0;
         int lineCharCount = 0;
-        const int maxCharsPerLine = GetScreenWidth()/16; // rough estimate based on font size
+        const int maxCharsPerLine = GetScreenWidth() / 16; // rough estimate based on font size
 
-        foreach (dchar c; skolemized) {
+        foreach (dchar c; skolemized)
+        {
             Color uColor;
             bool isSymbol = false;
 
-            switch (c) {
-                case '∧': 
-                case '∨':
-                case '&':
-                case '|':
-                    isSymbol = true;
-                    uColor = colorPalette.conjdisj;
-                    break;
-                case '∀': case '∃':
-                    isSymbol = true;
-                    uColor = colorPalette.quantifiers;
-                    break;
-                case '⟶': case '⟷':
-                    isSymbol = true;
-                    uColor = colorPalette.arrows;
-                    break;
-                default:
-                    if (c >= 'a' && c <= 'z')
-                        uColor = colorPalette.variables;
-                    else if (c >= 'A' && c <= 'Z')
-                        uColor = colorPalette.functions;
-                    else if (c == '(') {
-                        uColor = getParenColor(parenDepth);
-                        parenDepth++;
-                    } else if (c == ')') {
-                        uColor = getParenColor(parenDepth - 1);
-                        parenDepth--;
-                    } else
-                        uColor = colorPalette.text;
+            switch (c)
+            {
+            case '∧':
+            case '∨':
+            case '&':
+            case '|':
+                isSymbol = true;
+                uColor = colorPalette.conjdisj;
+                break;
+            case '∀':
+            case '∃':
+                isSymbol = true;
+                uColor = colorPalette.quantifiers;
+                break;
+            case '⟶':
+            case '⟷':
+                isSymbol = true;
+                uColor = colorPalette.arrows;
+                break;
+            default:
+                if (c >= 'a' && c <= 'z')
+                    uColor = colorPalette.variables;
+                else if (c >= 'A' && c <= 'Z')
+                    uColor = colorPalette.functions;
+                else if (c == '(')
+                {
+                    uColor = getParenColor(parenDepth);
+                    parenDepth++;
+                }
+                else if (c == ')')
+                {
+                    uColor = getParenColor(parenDepth - 1);
+                    parenDepth--;
+                }
+                else
+                    uColor = colorPalette.text;
             }
 
             auto labelTheme = Theme(
                 rule!Label(
                     textColor = uColor,
                     typeface = mathFont,
-                ),
+            ),
             );
 
             currentLine.children ~= labelTheme.label(format("%c", c));
             lineCharCount++;
 
-            if (lineCharCount >= maxCharsPerLine - lineCharCount * 0.2 && isSymbol) {
+            if (lineCharCount >= maxCharsPerLine - lineCharCount * 0.2 && isSymbol)
+            {
                 // newline
                 currentLine = hspace();
                 container.children ~= currentLine;
@@ -163,7 +218,8 @@ public class SkolemPage
 
     private Space _buildSpecialCharButtons()
     {
-        auto customColor(Color hex) {
+        auto customColor(Color hex)
+        {
             return Theme(
                 rule!Button(
                     backgroundColor = colorPalette.accent,
@@ -171,7 +227,7 @@ public class SkolemPage
                     margin = 10,
                     padding = 5,
                     typeface = mathFont,
-                ),
+            ),
             );
         }
 
