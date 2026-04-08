@@ -137,6 +137,14 @@ public class SkolemPage
 
                 // debug print
                 writeln("CNF formula: ", cnf);
+             }),
+            button("Is Horn?", delegate() @trusted {
+                string input = getFormulaInput();
+                bool isHorn = checkHornClause(input);
+                string message = isHorn ? "The formula is a Horn formula." : "The formula is NOT a Horn formula.";
+                auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                _skolemizedLabelSpace.children = coloredOutput.children;
+                _skolemizedLabelSpace.updateSize();
              })
             );
     }
