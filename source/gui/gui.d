@@ -5,6 +5,7 @@ import raylib;
 
 import gui.pages.skolem_page;
 import gui.pages.welcome_page;
+import gui.pages.settings_page;
 import gui.components.header;
 import gui.themes;
 
@@ -14,19 +15,22 @@ public class Gui
     private Page _currentPage;
     private SkolemPage _skolemPage;
     private WelcomePage _welcomePage;
+    private SettingsPage _settingsPage;
     private Header _header;
 
     enum Page
     {
         WELCOME,
         SKOLEM,
+        SETTINGS,
     }
 
     this()
     {
         _skolemPage = new SkolemPage(&_showSkolemPage);
         _welcomePage = new WelcomePage(&_showSkolemPage);
-        _header = new Header(&_showSkolemPage, &_onButton2Click);
+        _settingsPage = new SettingsPage(&_showSettingsPage);
+        _header = new Header(&_showSkolemPage, &_showSettingsPage);
         
         root = _welcomePage.build();
         _currentPage = Page.WELCOME;
@@ -38,9 +42,10 @@ public class Gui
         root = _buildMainFrame(_skolemPage.build());
     }
 
-    private void _onButton2Click()
+    private void _showSettingsPage()
     {
-        // nothing
+        _currentPage = Page.SETTINGS;
+        root = _buildMainFrame(_settingsPage.build());
     }
 
     private Space _buildMainFrame(Space contentArea)

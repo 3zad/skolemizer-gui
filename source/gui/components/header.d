@@ -10,12 +10,12 @@ public class Header
 {
     private Theme _headerTheme;
     private void delegate() _onSkolemClick;
-    private void delegate() _onButton2Click;
+    private void delegate() _onSettingsClick;
 
-    this(void delegate() onSkolemClick, void delegate() onButton2Click)
+    this(void delegate() onSkolemClick, void delegate() onSettingsClick)
     {
         this._onSkolemClick = onSkolemClick;
-        this._onButton2Click = onButton2Click;
+        this._onSettingsClick = onSettingsClick;
         this._headerTheme = headerTheme();
     }
 
@@ -48,8 +48,8 @@ public class Header
             button("Skolem", delegate() @trusted {
                 _onSkolemClick();
             }),
-            button("Button2", delegate() @trusted {
-                _onButton2Click();
+            button("Settings", delegate() @trusted {
+                _onSettingsClick();
             }),
         );
     }
