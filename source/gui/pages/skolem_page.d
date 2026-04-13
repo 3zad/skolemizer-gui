@@ -46,107 +46,182 @@ public class SkolemPage
 
     private Space _buildActionButtons()
     {
-        return hspace(.layout!"center", 
-            button(.layout!"center", "Skolemize", delegate() @trusted {
+        return 
+        vspace(
+            hspace(.layout!"center", 
+                button(.layout!"center", "Skolemize", delegate() @trusted {
 
-                dstring skolemized;
-                try
-                {
+                    dstring skolemized;
+                    try
+                    {
+                        string input = getFormulaInput();
+                        skolemized = toFormulaString(skolemizeFormula(input));
+
+                        writeln(skolemized);
+
+                        while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d))
+                        {
+                            skolemized = skolemized.replace("¬ ¬", ""); // double negation.
+                            skolemized = skolemized.replace("¬¬", ""); // double negation.
+                        }
+                        dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
+                        dstring digits = "0123456789"d;
+
+                        foreach (i, c; digits)
+                        {
+                            skolemized = skolemized.replace(c, subscript[i]);
+                        }
+
+                        foreach (i, c; digits)
+                        {
+                            skolemized = skolemized.replace(c, subscript[i]);
+                        }
+
+                    }
+                    catch (Error e)
+                    {
+                        skolemized = "Error: "d ~ to!dstring(e.msg);
+                    }
+                    catch (Exception e)
+                    {
+                        skolemized = "Exception: "d ~ to!dstring(e.msg);
+                    }
+
+                    auto coloredOutput = _buildColoredLabel(skolemized);
+                    _skolemizedLabelSpace.children = coloredOutput.children;
+                    _skolemizedLabelSpace.updateSize();
+
+                    // debug print
+                    writeln("Skolemized formula: ", skolemized);
+                    // ∀x(P(x) ⟶ ∃y(Q(x,y) ∧ ¬R(y))) - correct
+                    // ∀x∃y∀z∃w(P(s(x)) ⟶ (P(y)∧P(w) ⟶ ¬P(s(z))))) - correct
+                    // ∀x(P(x)⟷R(x)) - correct
+                    // ∀x((P(x) ⟶ R(x)) ∧ (R(x) ⟶ P(x))) - correct
+                    // ∀x(P(x) ⟷ Q(x) ⟷ R(x) ⟷ ¬S(x) ⟷ ¬P(x)) - idk yet
+                    // ∀xP(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(x))))))))))))))))))) - correct
+                    // ∀x∃y∀z∃w∀v∃u(P(x,y) ∧ Q(z,w) ⟶ R(v,u) ∧ S(x,z,v))
+                }),
+                button("CNF", delegate() @trusted {
+                    dstring cnf;
+                    try
+                    {
+                        string input = getFormulaInput();
+                        cnf = toFormulaString(distribute(skolemizeFormula(input)));
+
+                        writeln(cnf);
+
+                        while (cnf.canFind("¬ ¬"d) || cnf.canFind("¬¬"d))
+                        {
+                            cnf = cnf.replace("¬ ¬", ""); // double negation.
+                            cnf = cnf.replace("¬¬", ""); // double negation.
+                        }
+                        dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
+                        dstring digits = "0123456789"d;
+
+                        foreach (i, c; digits)
+                        {
+                            cnf = cnf.replace(c, subscript[i]);
+                        }
+
+                    }
+                    catch (Error e)
+                    {
+                        cnf = "Error: "d ~ to!dstring(e.msg);
+                    }
+                    catch (Exception e)
+                    {
+                        cnf = "Exception: "d ~ to!dstring(e.msg);
+                    }
+
+                    auto coloredOutput = _buildColoredLabel(cnf);
+                    _skolemizedLabelSpace.children = coloredOutput.children;
+                    _skolemizedLabelSpace.updateSize();
+
+                    // debug print
+                    writeln("CNF formula: ", cnf);
+                }),
+                button("Is Horn?", delegate() @trusted {
                     string input = getFormulaInput();
-                    skolemized = toFormulaString(skolemizeFormula(input));
-
-                    writeln(skolemized);
-
-                    while (skolemized.canFind("¬ ¬"d) || skolemized.canFind("¬¬"d))
-                    {
-                        skolemized = skolemized.replace("¬ ¬", ""); // double negation.
-                        skolemized = skolemized.replace("¬¬", ""); // double negation.
-                    }
-                    dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
-                    dstring digits = "0123456789"d;
-
-                    foreach (i, c; digits)
-                    {
-                        skolemized = skolemized.replace(c, subscript[i]);
-                    }
-
-                    foreach (i, c; digits)
-                    {
-                        skolemized = skolemized.replace(c, subscript[i]);
-                    }
-
-                }
-                catch (Error e)
-                {
-                    skolemized = "Error: "d ~ to!dstring(e.msg);
-                }
-                catch (Exception e)
-                {
-                    skolemized = "Exception: "d ~ to!dstring(e.msg);
-                }
-
-                auto coloredOutput = _buildColoredLabel(skolemized);
-                _skolemizedLabelSpace.children = coloredOutput.children;
-                _skolemizedLabelSpace.updateSize();
-
-                // debug print
-                writeln("Skolemized formula: ", skolemized);
-                // ∀x(P(x) ⟶ ∃y(Q(x,y) ∧ ¬R(y))) - correct
-                // ∀x∃y∀z∃w(P(s(x)) ⟶ (P(y)∧P(w) ⟶ ¬P(s(z))))) - correct
-                // ∀x(P(x)⟷R(x)) - correct
-                // ∀x((P(x) ⟶ R(x)) ∧ (R(x) ⟶ P(x))) - correct
-                // ∀x(P(x) ⟷ Q(x) ⟷ R(x) ⟷ ¬S(x) ⟷ ¬P(x)) - idk yet
-                // ∀xP(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(s(x))))))))))))))))))) - correct
-                // ∀x∃y∀z∃w∀v∃u(P(x,y) ∧ Q(z,w) ⟶ R(v,u) ∧ S(x,z,v))
-            }),
-            button("CNF", delegate() @trusted {
-                dstring cnf;
-                try
-                {
+                    bool isHorn = checkHornClause(input);
+                    string message = isHorn ? "The formula is a Horn formula." : "The formula is NOT a Horn formula.";
+                    auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                    _skolemizedLabelSpace.children = coloredOutput.children;
+                    _skolemizedLabelSpace.updateSize();
+                })
+            ),
+            hspace(
+                button("Try Horn", delegate() @trusted {
+                    // (a∨b∨!c∨!d)∧(!a∨b∨!c∨!d)∧(a)∧(d)∧(b∨!d)
                     string input = getFormulaInput();
-                    cnf = toFormulaString(distribute(skolemizeFormula(input)));
-
-                    writeln(cnf);
-
-                    while (cnf.canFind("¬ ¬"d) || cnf.canFind("¬¬"d))
+                    dstring hornified;
+                    try
                     {
-                        cnf = cnf.replace("¬ ¬", ""); // double negation.
-                        cnf = cnf.replace("¬¬", ""); // double negation.
+                        hornified = toSetString(tryHornConvert(toDisjunctForm(input)));
                     }
-                    dchar[] subscript = "₀₁₂₃₄₅₆₇₈₉".array;
-                    dstring digits = "0123456789"d;
-
-                    foreach (i, c; digits)
+                    catch (Error e)
                     {
-                        cnf = cnf.replace(c, subscript[i]);
+                        hornified = "Error: "d ~ to!dstring(e.msg);
+                    }
+                    catch (Exception e)
+                    {
+                        hornified = "Exception: "d ~ to!dstring(e.msg);
                     }
 
-                }
-                catch (Error e)
-                {
-                    cnf = "Error: "d ~ to!dstring(e.msg);
-                }
-                catch (Exception e)
-                {
-                    cnf = "Exception: "d ~ to!dstring(e.msg);
-                }
+                    auto coloredOutput = _buildColoredLabel(hornified);
+                    _skolemizedLabelSpace.children = coloredOutput.children;
+                    _skolemizedLabelSpace.updateSize();
 
-                auto coloredOutput = _buildColoredLabel(cnf);
-                _skolemizedLabelSpace.children = coloredOutput.children;
-                _skolemizedLabelSpace.updateSize();
-
-                // debug print
-                writeln("CNF formula: ", cnf);
-             }),
-            button("Is Horn?", delegate() @trusted {
-                string input = getFormulaInput();
-                bool isHorn = checkHornClause(input);
-                string message = isHorn ? "The formula is a Horn formula." : "The formula is NOT a Horn formula.";
-                auto coloredOutput = _buildColoredLabel(message.to!dstring);
-                _skolemizedLabelSpace.children = coloredOutput.children;
-                _skolemizedLabelSpace.updateSize();
-             })
-            );
+                    writeln("Hornified formula: ", hornified);
+                }),
+                button("Is Satisfiable? (Truth table)", delegate() @trusted {
+                    try
+                    {
+                        string input = getFormulaInput();
+                        auto isSat = naiveSAT(toDisjunctForm(parseFormula(input)));
+                        string message = isSat == SatResult.Satisfiable ? "The formula is satisfiable." : "The formula is NOT satisfiable.";
+                        auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                        _skolemizedLabelSpace.children = coloredOutput.children;
+                        _skolemizedLabelSpace.updateSize();
+                    }
+                    catch (Error e) {
+                        string message = "Error: " ~ e.msg;
+                        auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                        _skolemizedLabelSpace.children = coloredOutput.children;
+                        _skolemizedLabelSpace.updateSize();
+                    }
+                    catch (Exception e) {
+                        string message = "Exception: " ~ e.msg;
+                        auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                        _skolemizedLabelSpace.children = coloredOutput.children;
+                        _skolemizedLabelSpace.updateSize();
+                    }
+                }),
+                button("Is Satisfiable? (SLD-Resolution)", delegate() @trusted {
+                    try
+                    {
+                        string input = getFormulaInput();
+                        auto isSat = SLDResolve(toDisjunctForm(parseFormula(input)));
+                        string message = isSat == SatResult.Satisfiable ? "The formula is satisfiable." : "The formula is NOT satisfiable.";
+                        auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                        _skolemizedLabelSpace.children = coloredOutput.children;
+                        _skolemizedLabelSpace.updateSize();
+                    }
+                    catch (Error e) {
+                        string message = "Error: " ~ e.msg;
+                        auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                        _skolemizedLabelSpace.children = coloredOutput.children;
+                        _skolemizedLabelSpace.updateSize();
+                    }
+                    catch (Exception e) {
+                        string message = "Exception: " ~ e.msg;
+                        auto coloredOutput = _buildColoredLabel(message.to!dstring);
+                        _skolemizedLabelSpace.children = coloredOutput.children;
+                        _skolemizedLabelSpace.updateSize();
+                    }
+                }
+                )
+            )
+        );
     }
 
     private Space _buildColoredLabel(dstring skolemized)
