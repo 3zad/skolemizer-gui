@@ -4,7 +4,15 @@ import raylib;
 import fluid;
 import fluid.theme;
 
-__gshared static immutable ColorPalette colorPalette = defaultPalette();
+__gshared static ColorPalette colorPalette = defaultPalette();
+
+__gshared static immutable ColorPalette[] colorPalettes = [
+    defaultPalette(),
+    pinkPalette(),
+    bluePalette(),
+    rainbowPalette(),
+    highContrastPalette(),
+];
 
 static struct ColorPalette
 {
@@ -22,9 +30,11 @@ static struct ColorPalette
     Color paren3;
     Color paren4;
     Color paren5;
+
+    string name;
 }
 
-static ColorPalette defaultPalette() pure
+private static ColorPalette defaultPalette() pure
 {
     return ColorPalette(
         color("#1e1e1e"), // background
@@ -40,10 +50,11 @@ static ColorPalette defaultPalette() pure
         color("#FFCF00"), // paren3
         color("#EE6123"), // paren4
         color("#FA003F"), // paren5
+        "Default"
     );
 }
 
-static ColorPalette pinkPalette() pure
+private static ColorPalette pinkPalette() pure
 {
     return ColorPalette(
         color("#200108"), // background
@@ -59,10 +70,11 @@ static ColorPalette pinkPalette() pure
         color("#DB8DD0"), // paren3
         color("#FEC5F6"), // paren4
         color("#fee7fb"), // paren5
+        "Pink"
     );
 }
 
-static ColorPalette bluePalette() pure
+private static ColorPalette bluePalette() pure
 {
     return ColorPalette(
         color("#0D1B2A"), // background
@@ -78,10 +90,11 @@ static ColorPalette bluePalette() pure
         color("#E0E1DD"), // paren3
         color("#F0F3BD"), // paren4
         color("#A9BCD0"), // paren5
+        "Blue"
     );
 }
 
-static ColorPalette rainbowPalette() pure
+private static ColorPalette rainbowPalette() pure
 {
     return ColorPalette(
         color("#282828"), // background
@@ -97,10 +110,11 @@ static ColorPalette rainbowPalette() pure
         color("#8ec07c"), // paren3
         color("#fabd2f"), // paren4
         color("#fe8019"), // paren5
+        "Rainbow"
     );
 }
 
-static ColorPalette highContrastPalette() pure
+private static ColorPalette highContrastPalette() pure
 {
     // bright colors on black background.
     return ColorPalette(
@@ -117,6 +131,7 @@ static ColorPalette highContrastPalette() pure
         color("#0000FF"), // paren3
         color("#FFFF00"), // paren4
         color("#FF00FF"), // paren5
+        "High Contrast"
     );
 }
 

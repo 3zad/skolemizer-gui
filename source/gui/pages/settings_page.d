@@ -3,8 +3,10 @@ module gui.pages.settings_page;
 import fluid;
 import fluid.popup_button;
 import raylib;
+import std.stdio;
 
 import gui.themes;
+import gui.color;
 
 public class SettingsPage
 {
@@ -28,19 +30,18 @@ public class SettingsPage
 
     public Space _buildDropdown()
     {
+        ButtonImpl!(Label)[] buttons;
+
+        static foreach (i, palette; colorPalettes)
+        {
+            buttons ~= button(palette.name, delegate() @trusted {
+                colorPalette = colorPalettes[i];
+                _refresh();
+            });
+        }
+
         return hspace(
-            popupButton("Color palette",
-                label("Are you sure? This action cannot be undone."),
-                hspace(
-                    .layout!"end",
-                    button("Cancel", delegate() @trusted {
-                        this._refresh();
-                    }),
-                    button("Clear", delegate() @trusted {
-                        this._refresh();
-                    }),
-                ),
-            ),
+            popupButton("Color palette", vspace(buttons))
         );
     }
 }
