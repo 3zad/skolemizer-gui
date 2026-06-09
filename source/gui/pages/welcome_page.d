@@ -21,7 +21,7 @@ public class WelcomePage
                 Themes.getIntroTheme(),
                 label(.layout!"center", "Skolemizer"),
                 _buildImage(),
-                label(.layout!"center", "Build v" ~ "1.0.0"),
+                // label(.layout!"center", "Build v" ~ "1.0.0"),
                 button(.layout!"center", "Continue", delegate() @trusted {
                     _onContinue();
                 })
